@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Derivada de cot, sec y csc elevadas a una potencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7f4;--panel:#ffffff;--ink:#1b2a26;--mute:#5d6b66;--line:#d5dbd6;--pot:#c2410c;--trig:#1d6fa5;--arg:#4d7c0f;--res:#7c3aed;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b17;--panel:#16261f;--ink:#eef3ee;--mute:#9db0a7;--line:#2c4238;--pot:#fb923c;--trig:#7cc4f2;--arg:#a3d95b;--res:#c4a7ff}}
+:root[data-theme="dark"]{--bg:#0f1b17;--panel:#16261f;--ink:#eef3ee;--mute:#9db0a7;--line:#2c4238;--pot:#fb923c;--trig:#7cc4f2;--arg:#a3d95b;--res:#c4a7ff}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Atkinson Hyperlegible',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.wrap{width:100%;max-width:760px;padding:14px 14px 20px;display:flex;flex-direction:column;gap:10px}
+.screen{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 18px;min-height:440px;display:flex;flex-direction:column;gap:12px}
+h1{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:1.45rem;margin:0;line-height:1.25}
+.sub{color:var(--mute);font-size:.95rem;margin:0}
+.line{font-family:'Source Serif 4',Georgia,serif;font-size:1.3rem;line-height:1.6;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;overflow-x:auto;max-width:100%}
+.line.on{opacity:1;transform:none}
+.line small{display:block;font-family:'Atkinson Hyperlegible',sans-serif;font-size:.88rem;color:var(--mute);line-height:1.4}
+.big{font-size:1.6rem}
+.res{border-left:4px solid var(--res);padding-left:12px}
+.p{color:var(--pot)}.t{color:var(--trig)}.a{color:var(--arg)}.r{color:var(--res)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem}
+table{border-collapse:collapse;font-family:'Source Serif 4',serif;font-size:1.15rem}
+td{padding:4px 14px 4px 0}
+.cap{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-height:64px;font-size:1rem;line-height:1.45}
+.bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--trig)}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{font:inherit;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 14px;min-height:44px;cursor:pointer}
+button:focus-visible{outline:3px solid var(--trig);outline-offset:2px}
+button.main{background:var(--trig);color:#fff;border-color:var(--trig);font-weight:700}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots b{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots b.on{background:var(--trig)}
+sup{font-size:.7em}
+.err{border-left:4px solid var(--pot);padding-left:12px;font-size:1.02rem;font-family:'Atkinson Hyperlegible',system-ui,sans-serif}
+.sol{display:block;margin:6px 0;font-size:.9rem;padding:6px 12px;min-height:36px}
+.hid{display:none;border-left:4px solid var(--res);padding-left:12px;margin-top:4px;font-size:1.1rem}
+.hid.show{display:block}
+button:disabled{opacity:.45;cursor:default}
+@media (prefers-reduced-motion:reduce){.line{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="screen" id="screen" aria-live="polite"></div>
+  <div class="cap" id="cap"></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="ctl">
+    <button id="prev" aria-label="Escena anterior">‹ Atrás</button>
+    <button id="play" class="main">Pausar</button>
+    <button id="next" aria-label="Escena siguiente">Siguiente ›</button>
+    <button id="mode" aria-pressed="false">Paso a paso: no</button>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+<script>
+var L='<div class="legend"><span class="p">■ potencia</span><span class="t">■ función trig.</span><span class="a">■ argumento</span></div>';
+var S=[
+{t:'Derivada de cotangente, secante y cosecante elevadas a una potencia',s:'Funciones de la forma y = secⁿ(u), cscⁿ(u) y cotⁿ(u)',
+ l:['<span class="big">y = <span class="t">sec</span><sup class="p">n</sup>(<span class="a">u</span>)</span><small>Lo mismo aplica para csc y cot. u puede ser suma, producto, cociente o función compuesta</small>',L],
+ c:['Ahora derivamos secante, cosecante y cotangente elevadas a una potencia.','Seguimos con las tres capas: potencia, función trigonométrica y argumento.']},
+{t:'La regla general',s:'Es la misma estructura que con seno y coseno',
+ l:['<span class="big">y\' = <span class="p">n</span>·<span class="t">f</span><sup class="p">n−1</sup>(<span class="a">u</span>) · <span class="t">f\'</span>(<span class="a">u</span>) · <span class="a">u\'</span></span>','<span class="p">1.</span> Baja el exponente y réstale 1.','<span class="t">2.</span> Deriva sec, csc o cot, dejando u igual.','<span class="a">3.</span> Multiplica por u\', la derivada del argumento.'],
+ c:['Primero la potencia: el exponente baja y se reduce en uno.','Luego derivamos la función trigonométrica sin tocar el argumento.','Y al final multiplicamos por u prima.']},
+{t:'Las tres derivadas que necesitas',s:'Con u como argumento, multiplica siempre por u\'',
+ l:['<table><tr><td>(cot u)\' =</td><td>−csc²u · u\'</td></tr><tr><td>(sec u)\' =</td><td>sec u · tan u · u\'</td></tr><tr><td>(csc u)\' =</td><td>−csc u · cot u · u\'</td></tr></table><small>Regla práctica: las funciones que empiezan con "co" (cot y csc) llevan signo negativo.</small>'],
+ c:['Memoriza estas tres. La secante es la única con signo positivo; la cotangente y la cosecante son negativas.']},
+{t:'Caso 1: argumento con resta',s:'Regla término a término',
+ l:['y = <span class="t">cot</span><sup class="p">3</sup>(<span class="a">4x − x<sup>2</sup></span>)','<span class="a">u = 4x − x²</span> → u\' = 4 − 2x<small>Se deriva cada término por separado</small>','y\' = <span class="p">3</span><span class="t">cot</span><sup class="p">2</sup>(<span class="a">u</span>) · (<span class="t">−csc</span><sup>2</sup>(<span class="a">u</span>)) · <span class="a">(4 − 2x)</span>','<div class="res">y\' = −3(4 − 2x) · cot²(4x − x²) · csc²(4x − x²)</div>','<div class="err">⚠ Error común: olvidar el signo menos de la cotangente, o confundir csc² con cot².</div>'],
+ c:['Tenemos cotangente al cubo de cuatro x menos x cuadrada.','Derivamos el argumento término a término: cuatro menos dos x.','Armamos las tres capas. La derivada de la cotangente aporta el signo menos.','Cuidado con ese signo y con no mezclar csc cuadrada con cot cuadrada.']},
+{t:'Caso 2: argumento con producto',s:'Regla del producto dentro del argumento',
+ l:['y = <span class="t">sec</span><sup class="p">2</sup>(<span class="a">x·sen x</span>)','<span class="a">u = x·sen x</span> → u\' = sen x + x·cos x<small>(f·g)\' = f\'g + fg\'</small>','y\' = <span class="p">2</span><span class="t">sec</span>(<span class="a">u</span>) · <span class="t">sec</span>(<span class="a">u</span>)<span class="t">tan</span>(<span class="a">u</span>) · <span class="a">(sen x + x·cos x)</span>','<div class="res">y\' = 2(sen x + x·cos x) · sec²(x·sen x) · tan(x·sen x)</div>','<div class="err">⚠ Error común: olvidar la tangente al derivar la secante, o derivar solo un factor del producto.</div>'],
+ c:['Ahora el argumento es un producto: x por seno de x.','Aplicamos la regla del producto para obtener u prima.','Al derivar la secante aparece secante por tangente. Por eso sec queda al cuadrado.','Dos descuidos frecuentes: olvidar la tangente y derivar solo un factor.']},
+{t:'Caso 3: argumento con cociente',s:'Regla del cociente dentro del argumento',
+ l:['y = <span class="t">csc</span><sup class="p">3</sup>(<span class="a">x / (x+1)</span>)','<span class="a">u\' = [1·(x+1) − x·1] / (x+1)² = 1/(x+1)²</span><small>(f/g)\' = (f\'g − fg\')/g²</small>','y\' = <span class="p">3</span><span class="t">csc</span><sup>2</sup>(<span class="a">u</span>) · (<span class="t">−csc</span>(<span class="a">u</span>)<span class="t">cot</span>(<span class="a">u</span>)) · <span class="a">1/(x+1)²</span>','<div class="res">y\' = −3 csc³(x/(x+1)) · cot(x/(x+1)) / (x+1)²</div>','<div class="err">⚠ Error común: derivar el cociente como derivada de arriba entre derivada de abajo.</div>'],
+ c:['El argumento es un cociente.','Usamos la regla del cociente: queda uno entre x más uno al cuadrado.','Al derivar la cosecante aparece menos csc por cot. Combinada con la potencia, csc queda al cubo.','Recuerda: el cociente no se deriva dividiendo las derivadas.']},
+{t:'Caso 4: argumento con raíz',s:'Exponente fraccionario dentro del argumento',
+ l:['y = <span class="t">cot</span><sup class="p">2</sup>(<span class="a">√x</span>)','<span class="a">u = x<sup>1/2</sup></span> → u\' = ½·x<sup>−1/2</sup> = 1/(2√x)<small>Reescribe la raíz como potencia antes de derivar</small>','y\' = <span class="p">2</span><span class="t">cot</span>(<span class="a">u</span>) · (<span class="t">−csc</span><sup>2</sup>(<span class="a">u</span>)) · <span class="a">1/(2√x)</span>','<div class="res">y\' = −cot(√x) · csc²(√x) / √x</div>','<div class="err">⚠ Error común: derivar √x como 1/√x, olvidando el ½.</div>'],
+ c:['Ahora el argumento es una raíz cuadrada.','La reescribimos como x elevada a un medio y derivamos: uno entre dos raíz de x.','Armamos las capas. El 2 de la potencia cancela el 2 del denominador.','Cuidado con el un medio al derivar la raíz.']},
+{t:'Tu turno',s:'Resuelve en tu cuaderno y luego revisa la solución',x:true,
+ l:['<small>Identifica potencia, función trigonométrica y u. Después calcula u\' con la regla indicada.</small>',
+'<b>A)</b> y = sec³(5x − 2x²)<small>Pista: término a término</small><button class="sol" onclick="tg(this)">Ver solución</button><div class="hid">u\' = 5 − 4x<br>y\' = 3(5 − 4x)·sec³(5x − 2x²)·tan(5x − 2x²)</div>',
+'<b>B)</b> y = csc²(x²·cos x)<small>Pista: producto</small><button class="sol" onclick="tg(this)">Ver solución</button><div class="hid">u\' = 2x·cos x − x²·sen x<br>y\' = −2(2x·cos x − x²·sen x)·csc²(u)·cot(u), con u = x²·cos x</div>',
+'<b>C)</b> y = cot³((x−1)/(x+2))<small>Pista: cociente</small><button class="sol" onclick="tg(this)">Ver solución</button><div class="hid">u\' = 3/(x+2)²<br>y\' = −9·cot²(u)·csc²(u)/(x+2)², con u = (x−1)/(x+2)</div>'],
+ c:['Pausa aquí. Resuelve cada ejercicio en tu cuaderno.','Ejercicio A: el argumento es una resta. Recuerda secante por tangente.','Ejercicio B: producto, y la cosecante lleva signo menos.','Ejercicio C: cociente. Toca Ver solución solo cuando termines.']},
+{t:'Resumen',s:'Un método para cualquier ejercicio',
+ l:['<span class="p">1.</span> Identifica potencia, función (sec, csc o cot) y argumento u.','<span class="a">2.</span> Calcula u\' con la regla que corresponda: término a término, producto, cociente o cadena.','<span class="t">3.</span> Multiplica: n · f<sup>n−1</sup>(u) · f\'(u) · u\'.','<small>Recuerda: cot y csc llevan signo negativo. Sec lleva tan.</small>'],
+ c:['Identifica las tres capas, deriva el argumento con su regla y multiplica todo.','Y no olvides los signos negativos de cot y csc.']}
+];
+var scr=document.getElementById('screen'),cap=document.getElementById('cap'),bar=document.getElementById('bar'),dots=document.getElementById('dots'),playB=document.getElementById('play');
+var si=0,li=0,playing=true,timer=null,manual=false;
+function tg(b){var d=b.nextElementSibling;d.classList.toggle('show');b.textContent=d.classList.contains('show')?'Ocultar solución':'Ver solución'}
+S.forEach(function(){dots.appendChild(document.createElement('b'))});
+function render(){
+ var s=S[si];
+ scr.innerHTML='<h1>'+s.t+'</h1><p class="sub">'+s.s+'</p>'+s.l.map(function(x){return '<div class="line">'+x+'</div>'}).join('');
+ [].forEach.call(dots.children,function(d,i){d.className=i===si?'on':''});
+ li=0;cap.textContent='';bar.style.width=(si/S.length*100)+'%';step();
+}
+function step(){
+ clearTimeout(timer);
+ var ls=scr.querySelectorAll('.line'),s=S[si];
+ if(li<ls.length){
+  ls[li].classList.add('on');
+  var ci=Math.min(li-(ls.length-s.c.length),s.c.length-1);
+  cap.textContent=s.c[Math.max(ci,0)];
+  li++;
+  bar.style.width=((si+li/ls.length)/S.length*100)+'%';
+  if(playing&&!manual)timer=setTimeout(step,li===1&&si===0?2600:3200);
+ }else if(playing&&!manual&&!s.x){
+  timer=setTimeout(function(){go(si+1)},3500);
+ }
+}
+function go(n){
+ if(n<0)n=0;
+ if(n>=S.length){playing=false;playB.textContent='Repetir';return}
+ si=n;render();
+}
+playB.onclick=function(){
+ if(playB.textContent==='Repetir'){playing=true;playB.textContent='Pausar';go(0);return}
+ playing=!playing;playB.textContent=playing?'Pausar':'Reanudar';
+ if(playing)step();else clearTimeout(timer);
+};
+document.getElementById('next').onclick=function(){
+ if(manual&&li<scr.querySelectorAll('.line').length)step();else go(si+1);
+};
+var modeB=document.getElementById('mode');
+modeB.onclick=function(){
+ manual=!manual;modeB.textContent='Paso a paso: '+(manual?'sí':'no');modeB.setAttribute('aria-pressed',manual);
+ playB.disabled=manual;
+ if(manual)clearTimeout(timer);else if(playing)step();
+};
+document.getElementById('prev').onclick=function(){go(si-1)};
+render();
+</script>
+</body>
+</html>
